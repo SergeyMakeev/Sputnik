@@ -1,0 +1,101 @@
+//
+// unfortunately Maya LT does not support python
+//         this will be an old-school MEL script
+//
+//
+//  source "C:/PathToScript/Sputnik.mel";
+//  ShowSputnikWindow();
+//
+
+
+
+//===========================================================================
+global proc int CloseWindow(string $name)
+{
+ int $IsExist = `window -ex $name`;
+ if ($IsExist) deleteUI $name;
+
+ if (`windowPref -ex $name`)
+ {
+  windowPref -r $name;
+ }
+ 
+ return 0;
+}
+
+
+//===========================================================================
+global proc int ShowSputnikWindow()
+{
+ CloseWindow("SputnikForm");
+ window  -mnb false -mxb false -tlc 100 100 -s 0  -w 209 -h 215 -title "Sputnik window" SputnikForm;
+ 
+ columnLayout;
+ 
+  gridLayout -numberOfColumns 1 -cellWidthHeight 200 28;
+   button -bgc 0.7 0.9 0.7 -label "Reset DoubleSided && Opposite" -align "center" -c "DeleteDoubleSidedFlagFromAll;";
+   button -bgc 0.7 0.7 0.9 -label "Import scene" -align "center" -c "ImportScene;";
+  setParent ..;
+
+  rowColumnLayout -numberOfColumns 1 -cw 1 200;
+   separator -height 8 -st "out"; 
+  setParent ..;
+
+    
+  gridLayout -numberOfColumns 1 -cellWidthHeight 200 28;
+   button -bgc 0.7 0.7 0.7 -label "Exit" -align "center" -c "CloseSputnikForm;";
+  setParent ..;
+  
+
+  setParent ..;
+
+
+ showWindow;
+ 
+
+ return 0;
+}
+
+
+//===========================================================================
+global proc int DeleteDoubleSidedFlagFromAll()
+{
+ string $GeomList[] = `ls -s -g`;
+ string $NodeType;
+ int $n;
+ for ($n = 0; $n < size($GeomList); $n++)
+ {
+   $NodeType = `nodeType $GeomList[$n]`;
+   if ($NodeType == "mesh")
+   {
+    setAttr ($GeomList[$n] + ".doubleSided") false;
+    setAttr ($GeomList[$n] + ".opposite") false;
+   }
+ }
+ 
+ confirmDialog -message "DoubleSided flag successfully reseted" -button "Ok";
+ 
+ 
+ return 0;
+}
+
+//===========================================================================
+global proc int CloseSputnikForm()
+{
+ CloseWindow("SputnikForm");
+ return 0;
+}
+
+
+//===========================================================================
+global proc int ImportScene()
+{
+ string $result[] = `fileDialog2 -fm 1 -dir "c:/work/0/" -ff ("MEL Scene (*.mel)") -okc "Import"`;
+ if (size($result) == 1)
+ {
+   print $result[0];
+   eval ("source \"" + $result[0] + "\"");
+ }
+ return 0;
+}
+

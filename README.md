@@ -1,1 +1,3 @@
-# Sputnik
+Roblox Sputnik plugin
+
+WiP
